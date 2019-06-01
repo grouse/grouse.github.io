@@ -561,7 +561,7 @@ immense man hours required for the maintenance.&lt;/p&gt;
 
 &lt;div class=&#34;experiences&#34;&gt;&lt;h2 id=&#34;experience:c59a67a3c7bc5faa453847420267045e&#34;&gt;Experience&lt;/h2&gt;
 
-&lt;div class=&#34;experience&#34;&gt;
+&lt;div class=&#34;experience &#34;&gt;
     &lt;span class=&#34;company&#34;&gt;Paradox Development Studio&lt;/span&gt;
     &lt;span class=&#34;position&#34;&gt;Engine Programmer&lt;/span&gt;
     &lt;span class=&#34;location&#34;&gt;Stockholm, Sweden&lt;/span&gt;
@@ -572,7 +572,7 @@ immense man hours required for the maintenance.&lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div class=&#34;experience&#34;&gt;
+&lt;div class=&#34;experience &#34;&gt;
     &lt;span class=&#34;company&#34;&gt;Feral Interactive&lt;/span&gt;
     &lt;span class=&#34;position&#34;&gt;Developer&lt;/span&gt;
     &lt;span class=&#34;location&#34;&gt;London, United Kingdom&lt;/span&gt;
@@ -584,7 +584,7 @@ immense man hours required for the maintenance.&lt;/p&gt;
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div class=&#34;experience&#34;&gt;
+&lt;div class=&#34;experience &#34;&gt;
     &lt;span class=&#34;company&#34;&gt;Notitium AB&lt;/span&gt;
     &lt;span class=&#34;position&#34;&gt;Software Developer&lt;/span&gt;
     &lt;span class=&#34;location&#34;&gt;Ängelholm, Sweden&lt;/span&gt;
@@ -598,7 +598,7 @@ to creating various tools and integrations using C# and the .NET framework.&lt;/
 &lt;/div&gt;
 &lt;/div&gt;
 
-&lt;div class=&#34;experience&#34;&gt;
+&lt;div class=&#34;experience page-break&#34;&gt;
     &lt;span class=&#34;company&#34;&gt;Grometics HB&lt;/span&gt;
     &lt;span class=&#34;position&#34;&gt;CEO &amp;amp; Software Developer&lt;/span&gt;
     &lt;span class=&#34;location&#34;&gt;Halmstad, Sweden&lt;/span&gt;
@@ -615,7 +615,7 @@ clients.&lt;/p&gt;
 
 &lt;div class=&#34;projects&#34;&gt;&lt;h2 id=&#34;projects:c59a67a3c7bc5faa453847420267045e&#34;&gt;Projects&lt;/h2&gt;
 
-&lt;div class=&#34;project page-break&#34;&gt;
+&lt;div class=&#34;project &#34;&gt;
     &lt;span class=&#34;title&#34;&gt;Project Leary&lt;/span&gt;
     &lt;span class=&#34;short-description&#34;&gt;Engine with Vulkan from scratch&lt;/span&gt;
     &lt;div class=&#34;description&#34;&gt;&lt;p&gt;Leary is my primary side project for learning Vulkan and expanding on my low
