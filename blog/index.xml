@@ -1,0 +1,479 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Blogs on Jesper Stefansson</title>
+    <link>https://grouse.github.io/blog/</link>
+    <description>Recent content in Blogs on Jesper Stefansson</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <copyright>&amp;copy; 2016-2018 Jesper Stefansson</copyright>
+    <lastBuildDate>Fri, 14 Apr 2017 21:39:43 +0100</lastBuildDate>
+    <atom:link href="https://grouse.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>defer</title>
+      <link>https://grouse.github.io/blog/defer/</link>
+      <pubDate>Fri, 14 Apr 2017 21:39:43 +0100</pubDate>
+      
+      <guid>https://grouse.github.io/blog/defer/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;m not a big fan of the destructors in C++. Don&amp;rsquo;t get me wrong, they can
+certainly be useful. I just think they solve a problem in a way that could&amp;rsquo;ve
+been implemented in a much more powerful way, without the implicit changes in
+behaviour or performance characteristics that adding a destructor comes with.
+I&amp;rsquo;m also not at all a fan of non-trivial code hidden away in destructors that I
+wasn&amp;rsquo;t expecting, but that&amp;rsquo;s primarily a programmer error.&lt;/p&gt;
+
+&lt;p&gt;Enough teasing, here&amp;rsquo;s the code:&lt;/p&gt;
+template &lt;typename F&gt;
+struct Defer {
+	Defer(F f) : f(f) {}
+	~Defer() { f(); }
+	F f;
+};
+
+template &lt;typename F&gt;
+Defer&lt;F&gt; defer_create(F f) {
+	return Defer&lt;F&gt;(f);
+};
+
+#define defer__(line) defer_ ## line
+#define defer_(line) defer__(line)
+
+struct DeferDummy {};
+template&lt;typename F&gt;
+Defer&lt;F&gt; operator+ (DeferDummy, F&amp;&amp; f)
+{
+	return defer_create&lt;F&gt;(std::forward&lt;F&gt;(f));
+}
+
+#define defer auto defer_(__LINE__) = DeferDummy() + [&amp;]()
+
+&lt;p&gt;Full credit of this snippet goes to the folks over at &lt;a href=&#34;https://handmade.network&#34;&gt;https://handmade.network&lt;/a&gt;
+where this is copied from, with a small change to the naming of the expansion
+macros to not clash with glibc.&lt;/p&gt;
+
+&lt;div class=&#34;note&#34;&gt;
+	&lt;span class=&#34;title&#34;&gt;Note:&lt;/span&gt;
+	&lt;span class=&#34;body&#34;&gt;&lt;p&gt;Don&amp;rsquo;t prepend anything with double underscore, you&amp;rsquo;re probably gonna clash with
+something, somewhere as it&amp;rsquo;s reserved by the compilers in C and C++.&lt;/p&gt;
+&lt;/span&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;In short, the way this works is that you pass a lambda expression to the
+constructor for the &lt;code&gt;Defer&lt;/code&gt; struct, that it calls during its destructor. The
+&lt;code&gt;DeferDummy&lt;/code&gt; struct exists so that we can default-construct an object and pass in
+the lambda using &lt;code&gt;operator+&lt;/code&gt;, this is entirely done in order to keep the defer
+macro usage neat and simple.&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;ve seen this sort of thing mentioned in a few places, and it&amp;rsquo;s certainly not a
+concept invented by C++ macro magicians. It&amp;rsquo;s a first class feature in Go,
+Swift, and probably a bunch of other languages. Personally, I was first
+introduced to it during one of Jonathan Blow&amp;rsquo;s JAI compiler streams. It&amp;rsquo;s
+just recently that I decided to actually incorporate it into my own projects and
+see how I actually like it in practice.&lt;/p&gt;
+
+&lt;p&gt;It turns out, I like it. I like it a lot. But first, some usage code to figure
+out what that macro magic actually allows us to do.&lt;/p&gt;
+void foo()
+{
+	defer { printf(&#34;world 1!\n&#34;); };
+	defer { printf(&#34;hello, &#34;); };
+
+	defer {
+		printf(&#34;hello, &#34;);
+		printf(&#34;world 2!\n&#34;);
+	};
+}
+
+// outputs:
+//   hello world 2!
+//   hello world 1!
+
+&lt;p&gt;Referring back to the macro magic, the first statement expands into&lt;/p&gt;
+auto defer_(__LINE__) = DeferDummy() + [&amp;](){ printf(&#34;world 1!\n&#34;); };
+
+&lt;p&gt;In other words, the defer macro starts a lambda expression declaration but
+doesn&amp;rsquo;t properly open or close it, we do that ourselves with the &lt;code&gt;{};&lt;/code&gt; The &lt;code&gt;;&lt;/code&gt;
+after the curly braces might look weird at first glance, and would indeed be the
+first thing I would want removed in a proper first class version of defer, but
+it&amp;rsquo;s required as long as we&amp;rsquo;re forced to hack the feature in using destructors
+and lambda expressions.&lt;/p&gt;
+
+&lt;p&gt;Because &lt;code&gt;defer&lt;/code&gt; is implemented using destructors of &lt;code&gt;Defer&lt;/code&gt; objects, the
+destructors are called in opposite order of declaration, like unwinding a stack.
+This turns out to not only make a lot of sense, but be exactly what we want, as
+we want any defer statements close to the beginning of a scope to be called
+later than the ones near the end, in order to get proper order of execution in
+the cases where the latter defer depends on state cleaned up by the former defer.&lt;/p&gt;
+
+&lt;p&gt;There&amp;rsquo;s a few things this allows us to do. The most obvious one is to add a
+defer statement freeing a resource or closing a file handle just after we&amp;rsquo;ve
+opened it, making it much more obvious that this is taken care of. This is
+particularly useful if you like to do early returns, while also avoiding use of
+&lt;code&gt;goto&lt;/code&gt; to jump to clean-up code. Of course, all of this is one of the primary
+reasons for a destructor, but defer is much more versatile as you can trivially
+customise which statements are executed or whether it depends on some state in
+the function, without having to change or implement a destructor for a struct
+which would incur those changes everywhere the struct is already used,
+potentially changing performance characteristics or behaviour dependence.&lt;/p&gt;
+
+&lt;p&gt;Defer is one of the only things I really want added to the C++ specification as
+a first class citizen, but I&amp;rsquo;ve all but given up on the C++ committee actually
+adding something useful to the language, so this macro magic solution will keep
+me happy for now.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>live code editing</title>
+      <link>https://grouse.github.io/blog/live-code-editing/</link>
+      <pubDate>Sat, 08 Apr 2017 11:11:54 +0100</pubDate>
+      
+      <guid>https://grouse.github.io/blog/live-code-editing/</guid>
+      <description>
+
+&lt;p&gt;Fast iteration times on large projects is often cited as one of the primary
+reasons to incorporate a scripting language, such as Lua, Python or JavaScript,
+into the project. The primary downside to this is overall complexity,
+performance, maintenance, and debugging. So wouldn&amp;rsquo;t it be great if we can get
+the benefits of scripting languages with none of, or close to none of, the
+downsides?&lt;/p&gt;
+
+&lt;div class=&#34;note&#34;&gt;
+	&lt;span class=&#34;title&#34;&gt;Note:&lt;/span&gt;
+	&lt;span class=&#34;body&#34;&gt;&lt;p&gt;This post is written from the perspective of game development. With that said,
+most if not all principles are applicable to any software project of similar
+size and complexity.&lt;/p&gt;
+&lt;/span&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;Certainly there are other benefits to a more high level scripting language,
+particularly if the rest of the code base is in a rather low level programming
+language, such as C or C++. It allows people who would generally not classify
+themselves as programmers for their primary skill or interest, like designers,
+artists and writers, to put their content into the game and seeing how it works
+in practice.&lt;/p&gt;
+
+&lt;p&gt;This is not a benefit I&amp;rsquo;m going to put a lot of effort into exploring or
+considering, simply because I can&amp;rsquo;t speak for what kind of tangible benefits
+designers, artists and the like can derive from a scripting language when looking
+at the project as a whole compared to the amount of man hours required to make
+a scripting language integration perform well, not to mention that the debugging
+facilities for such an integration tend to be far worse than what we have
+available for native languages.&lt;/p&gt;
+
+&lt;p&gt;So how do we get the fast iteration time of scripting languages using ordinary
+C or C++? It turns out, it&amp;rsquo;s actually not that complicated. In fact, most of us
+have been only a few steps away from achieving it while doing other things. The
+solution is dynamically linked libraries, &lt;code&gt;.dll&lt;/code&gt; on Windows, &lt;code&gt;.so&lt;/code&gt; on Linux.&lt;/p&gt;
+// file: foo.c
+void foo(int a, int b)
+{
+	// ...
+}
+
+// file: bar.c
+typedef void foo_t(int, int);
+foo_t *foo = nullptr;
+
+void foo_stub(int, int) {}
+
+void* load_foo()
+{
+	void *lib = dlopen(&#34;foo.so&#34;, RTLD_NOW | RTLD_GLOBAL);
+
+	if (lib) {
+		foo = (foo_t*)dlysym(lib, &#34;foo&#34;);
+		// ...
+	}
+
+	if (!foo) foo = &amp;foo_stub;
+	// ...
+
+	return lib;
+}
+
+&lt;p&gt;The above snippet is a simple example of how to dynamically load code at
+runtime, the code is written for Linux using &lt;code&gt;dlopen&lt;/code&gt; and &lt;code&gt;dlsym&lt;/code&gt; functions, the
+Windows equivalent is copied verbatim but with the necessary replacements to use
+&lt;code&gt;LoadLibrary&lt;/code&gt; and &lt;code&gt;GetProcAddress&lt;/code&gt; instead of &lt;code&gt;dlopen&lt;/code&gt; and &lt;code&gt;dlsym&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;So, first of, there are a couple of different things that needs to be done to get
+the code base ready to be loaded at runtime. I&amp;rsquo;ve already implemented live code
+editing in one of my main hobby projects, Leary
+(&lt;a href=&#34;https://github.com/grouse/leary&#34;&gt;https://github.com/grouse/leary&lt;/a&gt;), so I&amp;rsquo;ll be using that as a reference to
+describe what needs to be done and how to achieve it.&lt;/p&gt;
+
+&lt;h1 id=&#34;figure-out-what-to-reload:ccf22ca48757b7e712969eb0241589ec&#34;&gt;Figure out what to reload&lt;/h1&gt;
+
+&lt;p&gt;The first thing that needs to be done is deciding which parts of the code base
+should be loaded at runtime and start making the changes necessary to make it
+possible to compile these parts into a &lt;code&gt;.dll&lt;/code&gt; or &lt;code&gt;.so&lt;/code&gt;. For Leary I wanted as
+much as possible to fall in this category. That means initialisation, input
+handling, simulation, and rendering.&lt;/p&gt;
+
+&lt;h1 id=&#34;make-a-few-small-concise-entry-points-to-the-reloaded-code:ccf22ca48757b7e712969eb0241589ec&#34;&gt;Make a few small, concise entry points to the reloaded code&lt;/h1&gt;
+
+&lt;p&gt;We could simply reload every single function in the code, but that is quickly
+going to turn into a nightmare to maintain. Instead, I suggest you provide a
+very simple interface to the code that is reloaded with just a few different
+functions and move all code behind those, making a concise and easy to maintain
+interface between the dynamically loaded code and the main entry point of the
+program.&lt;/p&gt;
+
+&lt;p&gt;In Leary, I decided to make this interface four functions: &lt;code&gt;game_init&lt;/code&gt;,
+&lt;code&gt;game_pre_reload&lt;/code&gt;, &lt;code&gt;game_reload&lt;/code&gt;, and &lt;code&gt;game_update&lt;/code&gt;. The purpose for
+&lt;code&gt;game_pre_reload&lt;/code&gt; might not be immediately apparent, and at the time of writing
+this post it actually isn&amp;rsquo;t required for Leary, but it&amp;rsquo;s there so that if
+anything relies on other outside state, such as Vulkan driver state, the game
+code has a chance to make sure that this state is ready to be reloaded. In the
+case of Vulkan, which is the most immediate case it&amp;rsquo;ll be needed for in Leary,
+it means I can make sure the graphics device is idle and have finished all its
+work before I reload the code and recreate shader, buffer and texture resources.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;game_reload&lt;/code&gt; is called after the game module has been reloaded. The function is
+used so that we can pass all the global state that we&amp;rsquo;ve gathered from the
+module back to be set accordingly. As you might imagine, the less global state
+you rely on the less this function has to be doing.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;game_init&lt;/code&gt; and &lt;code&gt;game_update&lt;/code&gt; are fairly self evident. &lt;code&gt;game_init&lt;/code&gt; is called
+once at program startup to set up the primary state object that it then returns
+for the primary program to keep track of across module reloads. &lt;code&gt;game_update&lt;/code&gt; is
+our single entry point into the module that we call every frame with the game
+state object from &lt;code&gt;game_init&lt;/code&gt; to perform work.&lt;/p&gt;
+
+&lt;div class=&#34;note&#34;&gt;
+	&lt;span class=&#34;title&#34;&gt;Note:&lt;/span&gt;
+	&lt;span class=&#34;body&#34;&gt;&lt;p&gt;In a more traditional input-based program without a non-stalling infinite main
+loop traditional to games, you can imagine a fifth function &lt;code&gt;work_available&lt;/code&gt;
+which would block the main loop in the main program until there are input events
+that need processing or we have found in some other way that we need to perform
+work.&lt;/p&gt;
+&lt;/span&gt;
+&lt;/div&gt;
+
+
+&lt;p&gt;After these code changes the function to load all the game code in Leary off of
+the disk looks like this:&lt;/p&gt;
+#define DLOAD_FUNC(lib, name) (name##_t*)dlsym(lib, #name)
+
+void* load_code()
+{
+	void *lib = dlopen(&#34;/path/to/game.so&#34;, RTLD_NOW | RTLD_GLOBAL);
+
+	if (lib) {
+		game_init       = DLOAD_FUNC(lib, game_init);
+		game_pre_reload = DLOAD_FUNC(lib, game_pre_reload);
+		game_reload     = DLOAD_FUNC(lib, game_reload);
+		game_update     = DLOAD_FUNC(lib, game_update);
+	}
+
+	if (!game_init)       game_init       = &amp;game_init_stub;
+	if (!game_pre_reload) game_pre_reload = &amp;game_pre_reload_stub;
+	if (!game_reload)     game_reload     = &amp;game_reload_stub;
+	if (!game_update)     game_update     = &amp;game_update_stub;
+
+	return lib;
+}
+
+&lt;h1 id=&#34;coalesce-state:ccf22ca48757b7e712969eb0241589ec&#34;&gt;Coalesce state&lt;/h1&gt;
+
+&lt;p&gt;If all you do is run the above code in your &lt;code&gt;main&lt;/code&gt; entry point once, it should
+&amp;lsquo;just work&amp;rsquo;. But that&amp;rsquo;s not why we&amp;rsquo;re here. We want to be able to continuously
+reload the code as it changes.&lt;/p&gt;
+
+&lt;p&gt;If you&amp;rsquo;re not relying on any static variables, global or local, in your code
+base, you&amp;rsquo;re in luck. Just make sure &lt;code&gt;game_init&lt;/code&gt; returns the primary state
+object that you pass into &lt;code&gt;game_update&lt;/code&gt; and you&amp;rsquo;re pretty much good to go.&lt;/p&gt;
+
+&lt;p&gt;If you do use any static variables you need to understand how static
+initialisation works, in particular in regards to dynamically linked libraries.&lt;/p&gt;
+
+&lt;h2 id=&#34;static-local-variables:ccf22ca48757b7e712969eb0241589ec&#34;&gt;Static local variables&lt;/h2&gt;
+
+&lt;p&gt;Static variables that are declared locally in function or block scope is
+initialised at first execution of that scope. The deinitialisation of the static
+variables occurs at program or module exit. Because we&amp;rsquo;ll be reloading the code
+continuously we&amp;rsquo;ll be calling &lt;code&gt;dlclose&lt;/code&gt; followed by &lt;code&gt;dlopen&lt;/code&gt; every time we
+reload. Static deinitialisation of all block or function scoped static variables
+in the dynamic library will occur at &lt;code&gt;dlclose&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;There are a few potential pitfalls with this that we need to take care of. The
+first obvious one is if the static variable is being allocated on the heap that
+means we end up leaking the memory of that static variable every time we reload
+the code. That&amp;rsquo;d be bad. The other pitfall is if the static variable is
+initialised by executing some non-trivial code. That &lt;em&gt;might&lt;/em&gt; be bad.&lt;/p&gt;
+
+&lt;p&gt;There isn&amp;rsquo;t really any simple solution that fits all in this case. You&amp;rsquo;re
+just gonna have to go through each static variable and figure out if multiple
+initialisations and deinitialisatons of the variable would result in bad
+behaviour. As a personal preference, I tend to avoid the type of static
+variables that would cause these types of problems for a number of different
+reasons, live code editing being just one minor one of them. These reasons may
+become the subject of a future post.&lt;/p&gt;
+
+&lt;h2 id=&#34;static-global-variables:ccf22ca48757b7e712969eb0241589ec&#34;&gt;Static global variables&lt;/h2&gt;
+
+&lt;p&gt;Static global variables will be initialised with &lt;code&gt;dlopen&lt;/code&gt; and deinitialised with
+&lt;code&gt;dlclose&lt;/code&gt;. Fortunately, these are a lot easier to handle cleanly in our use case
+of reloading the module.&lt;/p&gt;
+
+&lt;p&gt;Put simply, avoid initialising static variables using function calls, e.g.
+&lt;code&gt;static Foo foo = some_foo_init();&lt;/code&gt;. Similarly as with the static block and
+function scoped variables, these assignments mean that &lt;code&gt;some_foo_init&lt;/code&gt; will be
+executed every time we reload the module. The same thing applies if the static
+variable is used to track state that needs to persist across reloads, as the
+reload will reset the state.&lt;/p&gt;
+
+&lt;p&gt;Instead, put all these initialisations behind an &lt;code&gt;init&lt;/code&gt; or &lt;code&gt;reload&lt;/code&gt; function.
+In the case of Leary, that&amp;rsquo;s exactly what &lt;code&gt;game_reload&lt;/code&gt; is used for. The state
+object from &lt;code&gt;game_init&lt;/code&gt; is used to store and restore the values of the
+variables.&lt;/p&gt;
+
+&lt;h1 id=&#34;putting-it-all-together:ccf22ca48757b7e712969eb0241589ec&#34;&gt;Putting it all together&lt;/h1&gt;
+
+&lt;p&gt;At last. We&amp;rsquo;ve coalesced all the state required into a single object that we can
+pass into the drastically reduced entry point interface that we&amp;rsquo;ve defined, and
+we&amp;rsquo;ve (hopefully) cleaned up all static variables or made sure they all behave
+well when being initialised multiple times. It&amp;rsquo;s time to write the main loop
+that pulls it all together and reloads the code when appropriate.&lt;/p&gt;
+typedef void game_init_t(GameState*);
+typedef void game_pre_reload_t(GameState*);
+typedef void game_reload_t(GameState*);
+typedef void game_update_t(GameState*);
+
+void game_init_stub(GameState*)       {}
+void game_pre_reload_stub(GameState*) {}
+void game_reload_stub(GameState*)     {}
+void game_update_stub(GameState*)     {}
+
+game_init_t       *game_init       = nullptr;
+game_pre_reload_t *game_pre_reload = nullptr;
+game_reload_t     *game_reload     = nullptr;
+game_update_t     *game_update     = nullptr;
+
+#define DLOAD_FUNC(lib, name) (name##_t*)dlsym(lib, #name)
+void* load_code()
+{
+	void *lib = dlopen(&#34;/path/to/game.so&#34;, RTLD_LAZY | RTLD_GLOBAL);
+
+	if (lib) {
+		game_init       = DLOAD_FUNC(lib.handle, game_init);
+		game_pre_reload = DLOAD_FUNC(lib.handle, game_pre_reload);
+		game_reload     = DLOAD_FUNC(lib.handle, game_reload);
+		game_update     = DLOAD_FUNC(lib.handle, game_update);
+	}
+
+	if (!game_init)       game_init       = &amp;game_init_stub;
+	if (!game_pre_reload) game_pre_reload = &amp;game_pre_reload_stub;
+	if (!game_reload)     game_reload     = &amp;game_reload_stub;
+	if (!game_update)     game_update     = &amp;game_update_stub;
+
+	return lib;
+}
+
+void main(int, char **)
+{
+	void *lib = load_code();
+
+	GameState game = {};
+	game_init(&amp;game);
+
+	while (true) {
+		game_update(&amp;game);
+
+		game_pre_reload(&amp;game);
+		dlclose(lib);
+		lib = load_code();
+
+		game_reload(&amp;game);
+	}
+
+	return 0;
+}
+
+&lt;p&gt;Naturally, reloading the game code every frame is a horrendously bad
+idea. It&amp;rsquo;ll tank the performance and you&amp;rsquo;re pretty much asking for trouble.
+There are a number of ways to get around that problem: either reload the code
+after some predetermined, arbitrary amount of time, or use a way to determine
+whether the &lt;code&gt;game.so&lt;/code&gt; file has changed and only reload the code when that
+happens. To accomplish the latter you can simply query the last modified date of
+the file whenever you want to reload it, or you can look into the various
+platform specific ways that exist to be notified via callbacks or events when a
+file changes. Right now in Leary I simply query the last modified time of the
+dynamic library every second and reload it if it has changed.&lt;/p&gt;
+
+&lt;h1 id=&#34;final-words:ccf22ca48757b7e712969eb0241589ec&#34;&gt;Final words&lt;/h1&gt;
+
+&lt;p&gt;There you have it. Natively compiled C/C++ code reloaded dynamically at runtime,
+allowing you to very rapidly change a piece of code, compile it, and have the
+changes immediately take effect in the running program. It&amp;rsquo;s magic.&lt;/p&gt;
+
+&lt;p&gt;Some caveats still exist. For example, if the layout of your data changes, by
+changing the order of variables in a struct or their type you&amp;rsquo;re going to
+have to do a proper full reload of the game. Secondly, as alluded to earlier in
+the post, you&amp;rsquo;re going to have to take extra care that any libraries that you
+use won&amp;rsquo;t behave badly when reloaded dynamically like this.&lt;/p&gt;
+
+&lt;p&gt;Debugging can also be somewhat temperamental at times. Visual Studio in
+particular likes to lock both the &lt;code&gt;.pdb&lt;/code&gt; and executable files when it&amp;rsquo;s
+debugging so that they can&amp;rsquo;t be changed at all, and GDB seems to freak out
+somewhat when symbols have changed without it realising.&lt;/p&gt;
+
+&lt;p&gt;In the case of Visual Studio&amp;rsquo;s locking you pretty much just have to make sure to
+copy the binaries and debug symbols to intermediate copies before you load them,
+so that the symbols and binaries being generated by the compiling isn&amp;rsquo;t the ones
+you&amp;rsquo;re actually loading.&lt;/p&gt;
+
+&lt;p&gt;For GDB&amp;rsquo;s freak out, I&amp;rsquo;ll get back to you on that one. I&amp;rsquo;m sure there are
+reasonable solutions to work around it.&lt;/p&gt;
+
+&lt;p&gt;These problems have, so far, for me, been rather secondary in priority.
+Generally when I want to debug something I&amp;rsquo;m not very interested in being able
+to do live code editing, so I have a simple &lt;code&gt;#define&lt;/code&gt; to turn it off in favour
+of traditional static linking.&lt;/p&gt;
+
+&lt;p&gt;As a programmer very comfortable in the low level trenches of C/C++, this then
+gives me the best of both worlds. When I need fast iteration testing gameplay I
+turn on the live code editing and I just have to compile for my changes to take
+effect immediately, when I need to debug I turn it off and I get the stable,
+&amp;lsquo;normal&amp;rsquo;, statically linked code that GDB and Visual Studio plays nicely with.
+All with none of the massive performance cost of scripting languages or the
+immense man hours required for the maintenance.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Hello, World!</title>
+      <link>https://grouse.github.io/blog/hello-world/</link>
+      <pubDate>Thu, 12 Jan 2017 22:10:00 +0000</pubDate>
+      
+      <guid>https://grouse.github.io/blog/hello-world/</guid>
+      <description>&lt;p&gt;Just like every blog needs a &amp;ldquo;Hello World&amp;rdquo; post to start things off, so does
+this one. And just like every introductionary post promising times of
+grandeur, interesting content providing food for thought, and frequent updates,
+just to fall into obscurity with no update in sight for months, this one is
+no exception.&lt;/p&gt;
+
+&lt;p&gt;My name&amp;rsquo;s Jesper Stefansson. I&amp;rsquo;m an aspiring game developer from Sweden
+currently employed by Feral Interactive to port video games to Linux. At the
+time of writing this employment has resulted in primary involvement in the Linux
+ports Tomb Raider, the 2013 reboot, and Total War: WARHAMMER.&lt;/p&gt;
+
+&lt;p&gt;So what&amp;rsquo;s with the blog? Well, I&amp;rsquo;ve always quite enjoyed writing, and over the
+years I&amp;rsquo;ve deluded myself into thinking I&amp;rsquo;m rather decent at it. And what better
+way to share in the insanity that is every day life as a game developer, as my
+hair grows greyer and my mind ever more cynical.&lt;/p&gt;
+
+&lt;p&gt;As alluded to by the start of this post, I have a few ideas and rough notes for
+a few topics I wish to write about. I also have far too many books to read, and
+code to code, so we&amp;rsquo;ll see what happens. Don&amp;rsquo;t hold your breath.&lt;/p&gt;
+
+&lt;p&gt;Until next time, &lt;br/&gt;
+Jesper&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

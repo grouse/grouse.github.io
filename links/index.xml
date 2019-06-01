@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Links on Jesper Stefansson</title>
+    <link>https://grouse.github.io/links/</link>
+    <description>Recent content in Links on Jesper Stefansson</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <copyright>&amp;copy; 2016-2018 Jesper Stefansson</copyright>
+    <lastBuildDate>Tue, 08 Aug 2017 21:13:34 +0100</lastBuildDate>
+    <atom:link href="https://grouse.github.io/links/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Computer Science</title>
+      <link>https://grouse.github.io/links/computer-science/</link>
+      <pubDate>Tue, 08 Aug 2017 21:13:34 +0100</pubDate>
+      
+      <guid>https://grouse.github.io/links/computer-science/</guid>
+      <description>&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Memory&lt;/strong&gt; &lt;em&gt;Florent Bruneau&lt;/em&gt;&lt;/td&gt;
+&lt;td&gt;&lt;a href=&#34;https://techtalk.intersec.com/2013/07/memory-part-1-memory-types&#34;&gt;https://techtalk.intersec.com/2013/07/memory-part-1-memory-types&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;a href=&#34;https://techtalk.intersec.com/2013/07/memory-part-2-understanding-process-memory&#34;&gt;https://techtalk.intersec.com/2013/07/memory-part-2-understanding-process-memory&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;a href=&#34;https://techtalk.intersec.com/2013/08/memory-part-3-managing-memory&#34;&gt;https://techtalk.intersec.com/2013/08/memory-part-3-managing-memory&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;a href=&#34;https://techtalk.intersec.com/2013/10/memory-part-4-intersecs-custom-allocators&#34;&gt;https://techtalk.intersec.com/2013/10/memory-part-4-intersecs-custom-allocators&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;a href=&#34;https://techtalk.intersec.com/2013/12/memory-part-5-debugging-tools&#34;&gt;https://techtalk.intersec.com/2013/12/memory-part-5-debugging-tools&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;td&gt;&lt;a href=&#34;https://techtalk.intersec.com/2014/09/memory-part-6-optimizing-the-fifo-and-stack-allocators&#34;&gt;https://techtalk.intersec.com/2014/09/memory-part-6-optimizing-the-fifo-and-stack-allocators&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Data Oriented Design and C++&lt;/strong&gt; &lt;em&gt;Mike Acton&lt;/em&gt;&lt;/td&gt;
+&lt;td&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=rX0ItVEVjHc&#34;&gt;https://www.youtube.com/watch?v=rX0ItVEVjHc&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Efficiency with Algorithms, Performance with Data Structures&lt;/strong&gt; &lt;em&gt;Chandler Carruth&lt;/em&gt;&lt;/td&gt;
+&lt;td&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=fHNmRkzxHWs&#34;&gt;https://www.youtube.com/watch?v=fHNmRkzxHWs&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Understanding Compiler Optimization&lt;/strong&gt;  &lt;em&gt;Chandler Carruth&lt;/em&gt;&lt;/td&gt;
+&lt;td&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=FnGCDLhaxKU&#34;&gt;https://www.youtube.com/watch?v=FnGCDLhaxKU&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Designing and Evaluating Reusable Components&lt;/strong&gt; &lt;em&gt;Casey Muratori&lt;/em&gt;&lt;/td&gt;
+&lt;td&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=ZQ5_u8Lgvyk&#34;&gt;https://www.youtube.com/watch?v=ZQ5_u8Lgvyk&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;State the Problem Before Describing the Solution&lt;/strong&gt; &lt;em&gt;Leslie Lamport&lt;/em&gt;&lt;/td&gt;
+&lt;td&gt;&lt;a href=&#34;https://www.microsoft.com/en-us/research/publication/state-problem-describing-solution&#34;&gt;https://www.microsoft.com/en-us/research/publication/state-problem-describing-solution&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;Jonathan Blow on the [accountability of] Web&lt;/strong&gt; &lt;em&gt;Jonathan Blow&lt;/em&gt;&lt;/td&gt;
+&lt;td&gt;&lt;a href=&#34;https://clips.twitch.tv/CloudyWimpyQueleaEagleEye&#34;&gt;https://clips.twitch.tv/CloudyWimpyQueleaEagleEye&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
