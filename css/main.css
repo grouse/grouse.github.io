@@ -52,7 +52,7 @@
 /* text styling */
 body {
 	color: #777777;
-	font-family: sans-serif;
+	font-family: 'Ubuntu', sans-serif;
 	font-size: 11pt;
 	margin: 0;
 }
@@ -336,7 +336,6 @@ a.side-menu-link:hover {
 
 
 a.side-menu-heading {
-	font-family: Raleway;
 	font-weight: bold;
 	font-size: 1em;
 	letter-spacing: 0.1em;
@@ -357,6 +356,22 @@ code {
 	background: #f7f7f7;
 	border: 1px solid #cccccc;
 	padding: 1px 2px;
+}
+
+code.block {
+	display: block;
+	font-family: 'Ubuntu Mono', monospace;
+	white-space: pre;
+	background: #282828;
+	color: #D5C4A1;
+
+	tab-size: 4;
+	-moz-tab-size: 4;
+
+	border: 1px solid #d6dd81;
+	padding: 5px 15px;
+	margin-left: -1em;
+	margin-right: -1em;
 }
 
 div.highlight {
@@ -481,9 +496,8 @@ td {
     padding: 5px 5px;
 }
 
+
 /** blackburn theme overrides **/
-
-
 span.spoiler {
     background: #282828;
     color: #282828;
@@ -491,4 +505,12 @@ span.spoiler {
 
 span.spoiler:hover {
     color: #ffffff;
+}
+
+#menu .brand {
+	font-family: 'Ubuntu', sans-serif;
+}
+
+.header {
+	font-family: 'Ubuntu', sans-serif;
 }
