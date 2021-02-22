@@ -43,6 +43,43 @@
 	<div id="main">
 
 <div class="header">
+	<h1>apples vs oranges</h1>
+</div>
+
+<div class="content">
+	<div class="post-meta clearfix">
+		<div class="date">
+			<i class="fa fa-calendar fa-f2"></i>
+			<time>2021-02-22</time>
+		</div>
+	</div>
+	
+	
+
+<p>Comparing apples to oranges is one of society's greatest unsolved mysteries. So many people have tried and failed that it has given birth to the idiom "comparing apples to oranges" as a way of saying that something is incomparable.</p>
+
+<p>Not daunted by the failure of civilisation for thousands of years before me, and fueled by the random, racing thoughts of insomnia, this is my humble attempt to crack the problem, once and for all.</p> 
+
+
+
+<p>According to folk wisdom, an apple a day keeps the doctor away. As such, I'd recommend apples to anyone with a phobia for white robes or who wishes to avoid persons with doctorate titles in their twitter display name.</p>
+
+<p>The skin of an apple can easily get stuck in your teeth. This is very uncomfortable for anyone, but for someone with dentures or braces it may ruin the experience altogether. For the dentured people, I instead recommend oranges. Provided that they have access to a young person to peel their oranges, as peeling an orange requires a grip strength often not present in the very old.</p>
+
+<p>Oranges are a well known remedy for scurvy. If you're planning an extended voyage at sea, pack a few barrels of oranges. Also consider bringing a few rugby balls to stave off loneliness.</p>
+
+<p>Peeling an orange can also prove a squirting hazard of acidic liquid that, if it gets in your eyes, can be very painful. I suggest wearing protective eyewear at all times when peeling or consuming oranges.</p>
+
+<p>When consuming an orange one has to be constantly on the look out for seeds. Although our modern oranges often have very few or zero seeds, an unexpected rogue seed can not only be particularly unpleassant, it may prove a choking hazard which could drastically lower the life expectancy of the subject.</p>
+
+<p>Oranges, being orange, has a much higher contrast to the surrounding environment compared to apples, which are usually green and disappear in grass or yellow-red which disappear in leaves. If you are worried about losing your fruits, or have a sadistic parent who are trying to ruin easter by hiding fruits instead of sweets, oranges should be your fruit of choice.</p>
+
+<p>A dropped apple quickly develop discoloured blemishes on the skin, hinting at a compromised and mushy piece of apple underneath. The same drop with an orange usually do not develop the same kind of sign of damage on the the outside, but once peeled, might nevertheless reveal damage to the flesh of the orange. However, this damage is usually pretty minor and the orange is usually still good to eat.</p>
+
+<p>When it's all said and done, it seems pretty clear to me that oranges have the upper hand. Unless you're old and lack the grip strength required to peel the orange, in which case you probably want to avoid apples anyway, as avoiding doctors at that stage seems like avoiding the very people still keeping you alive.</p>
+
+<p>Finally, apple juice is far superior to orange juice, and therefore apples are better than oranges.</p>
+</div><div class="header">
 	<h1>fsg</h1>
 </div>
 
@@ -54,14 +91,11 @@
 		</div>
 	</div>
 	
-	<!-- fsg:
-title "fsg";
-created 2020-08-08;
--->
+	
 
 <p>I wrote my own site generator, it's called fsg. The s and g stands for Site Generator. I'll leave it to the creativity of the reader to figure out what the f stands for. It took a weekend. It's written for myself and by myself, so it doesn't have many bells and whistles, but it does what I need.</p>
 
-<!-- fsg: brief; -->
+
 
 <img src="/img/fsg.png" style="max-width: 80%; display: block; margin: 0 auto;"/>
 
@@ -92,14 +126,11 @@ created 2020-08-08;
 		</div>
 	</div>
 	
-	<!-- fsg:
-created 2017-04-14;
-title defer;
--->
+	
 
 <p>I'm not a big fan of the destructors in C++. Don't get me wrong, they can certainly be useful. I just think they solve a problem in a way that could've been implemented in a much more powerful way, without the implicit changes in behaviour or performance characteristics that adding a destructor comes with. I'm also not at all a fan of non-trivial code hidden away in destructors that I wasn't expecting, but that's primarily a programmer error.</p>
 
-<!-- fsg: brief; -->
+
 
 <p>Enough teasing, here's the code:</p>
 
@@ -166,7 +197,7 @@ something, somewhere as it's reserved by the compilers in C and C++.</p>
 
 <p>Because <code>defer</code> is implemented using destructors of <code>Defer</code> objects, the destructors are called in opposite order of declaration, like unwinding a stack. This turns out to not only make a lot of sense, but be exactly what we want, as we want any defer statements close to the beginning of a scope to be called later than the ones near the end, in order to get proper order of execution in the cases where the latter defer depends on state cleaned up by the former defer.</p>
 
-<p>There's a few things this allows us to do. The most obvious one is to add a defer statement freeing a resource or closing a file handle just after we've opened it, making it much more obvious that this is taken care of. This is particularly useful if you like to do early returns, while also avoiding use of `goto` to jump to clean-up code. Of course, all of this is one of the primary reasons for a destructor, but defer is much more versatile as you can trivially customise which statements are execute  or whether it depends on some state in the function, without having to change or implement a destructor for a struct which would incur those changes everywhere the struct is already used, potentially changing performance characteristics or behaviour dependence.</p>
+<p>There's a few things this allows us to do. The most obvious one is to add a defer statement freeing a resource or closing a file handle just after we've opened it, making it much more obvious that this is taken care of. This is particularly useful if you like to do early returns, while also avoiding use of <code>goto</code> to jump to clean-up code. Of course, all of this is one of the primary reasons for a destructor, but defer is much more versatile as you can trivially customise which statements are execute  or whether it depends on some state in the function, without having to change or implement a destructor for a struct which would incur those changes everywhere the struct is already used, potentially changing performance characteristics or behaviour dependence.</p>
 
 <p>Defer is one of the only things I really want added to the C++ specification as a first class citizen, but I've all but given up on the C++ committee actually adding something useful to the language, so this macro magic solution will keep me happy for now.</p>
 
@@ -182,14 +213,11 @@ something, somewhere as it's reserved by the compilers in C and C++.</p>
 		</div>
 	</div>
 	
-	<!-- fsg:
-created 2017-04-08;
-title "live code editing";
--->
+	
 
 <p>Fast iteration times on large projects is often cited as one of the primary reasons to incorporate a scripting language, such as Lua, Python or JavaScript, into the project. The primary downside to this is overall complexity, performance, maintenance, and debugging. So wouldn't it be great if we can get the benefits of scripting languages with none of, or close to none of, the downsides?</p>
 
-<!-- fsg: brief; -->
+
 
 <div class="note">
 <p>This post is written from the perspective of game development. With that said, most if not all principles are applicable to any software project of similar size and complexity.</p>
@@ -294,7 +322,7 @@ void* load_code()
 
 <h2>Static global variables</h2>
 
-<p>Static global variables will be initialised with `dlopen` and deinitialised with <code>dlclose</code>. Fortunately, these are a lot easier to handle cleanly in our use case of reloading the module.</p>
+<p>Static global variables will be initialised with <code>dlopen</code> and deinitialised with <code>dlclose</code>. Fortunately, these are a lot easier to handle cleanly in our use case of reloading the module.</p>
 
 <p>Put simply, avoid initialising static variables using function calls, e.g. <code>static Foo foo = some_foo_init();</code>. Similarly as with the static block and function scoped variables, these assignments mean that <code>some_foo_init</code> will be executed every time we reload the module. The same thing applies if the static variable is used to track state that needs to persist across reloads, as the reload will reset the state.</p>
 
@@ -390,14 +418,11 @@ void main(int, char **)
 		</div>
 	</div>
 	
-	<!-- fsg:
-title "Hello, World";
-created 2017-01-12;
--->
+	
 
 <p>Just like every blog needs a "Hello World" post to start things off, so does this one. And just like every introductionary post promising times of grandeur, interesting content providing food for thought, and frequent updates, just to fall into obscurity with no update in sight for months, this one is no exception.</p>
 
-<!-- fsg: brief; -->
+
 
 <p>My name's Jesper Stefansson. I'm an aspiring game developer from Sweden currently employed by Feral Interactive to port video games to Linux. At the time of writing this employment has resulted in primary involvement in the Linux ports Tomb Raider, the 2013 reboot, and Total War: WARHAMMER.</p>
 

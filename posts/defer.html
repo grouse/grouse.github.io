@@ -50,14 +50,11 @@
 				</div>
 			</div>
 
-			<!-- fsg:
-created 2017-04-14;
-title defer;
--->
+			
 
 <p>I'm not a big fan of the destructors in C++. Don't get me wrong, they can certainly be useful. I just think they solve a problem in a way that could've been implemented in a much more powerful way, without the implicit changes in behaviour or performance characteristics that adding a destructor comes with. I'm also not at all a fan of non-trivial code hidden away in destructors that I wasn't expecting, but that's primarily a programmer error.</p>
 
-<!-- fsg: brief; -->
+
 
 <p>Enough teasing, here's the code:</p>
 
@@ -124,7 +121,7 @@ something, somewhere as it's reserved by the compilers in C and C++.</p>
 
 <p>Because <code>defer</code> is implemented using destructors of <code>Defer</code> objects, the destructors are called in opposite order of declaration, like unwinding a stack. This turns out to not only make a lot of sense, but be exactly what we want, as we want any defer statements close to the beginning of a scope to be called later than the ones near the end, in order to get proper order of execution in the cases where the latter defer depends on state cleaned up by the former defer.</p>
 
-<p>There's a few things this allows us to do. The most obvious one is to add a defer statement freeing a resource or closing a file handle just after we've opened it, making it much more obvious that this is taken care of. This is particularly useful if you like to do early returns, while also avoiding use of `goto` to jump to clean-up code. Of course, all of this is one of the primary reasons for a destructor, but defer is much more versatile as you can trivially customise which statements are execute  or whether it depends on some state in the function, without having to change or implement a destructor for a struct which would incur those changes everywhere the struct is already used, potentially changing performance characteristics or behaviour dependence.</p>
+<p>There's a few things this allows us to do. The most obvious one is to add a defer statement freeing a resource or closing a file handle just after we've opened it, making it much more obvious that this is taken care of. This is particularly useful if you like to do early returns, while also avoiding use of <code>goto</code> to jump to clean-up code. Of course, all of this is one of the primary reasons for a destructor, but defer is much more versatile as you can trivially customise which statements are execute  or whether it depends on some state in the function, without having to change or implement a destructor for a struct which would incur those changes everywhere the struct is already used, potentially changing performance characteristics or behaviour dependence.</p>
 
 <p>Defer is one of the only things I really want added to the C++ specification as a first class citizen, but I've all but given up on the C++ committee actually adding something useful to the language, so this macro magic solution will keep me happy for now.</p>
 

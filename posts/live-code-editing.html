@@ -50,14 +50,11 @@
 				</div>
 			</div>
 
-			<!-- fsg:
-created 2017-04-08;
-title "live code editing";
--->
+			
 
 <p>Fast iteration times on large projects is often cited as one of the primary reasons to incorporate a scripting language, such as Lua, Python or JavaScript, into the project. The primary downside to this is overall complexity, performance, maintenance, and debugging. So wouldn't it be great if we can get the benefits of scripting languages with none of, or close to none of, the downsides?</p>
 
-<!-- fsg: brief; -->
+
 
 <div class="note">
 <p>This post is written from the perspective of game development. With that said, most if not all principles are applicable to any software project of similar size and complexity.</p>
@@ -162,7 +159,7 @@ void* load_code()
 
 <h2>Static global variables</h2>
 
-<p>Static global variables will be initialised with `dlopen` and deinitialised with <code>dlclose</code>. Fortunately, these are a lot easier to handle cleanly in our use case of reloading the module.</p>
+<p>Static global variables will be initialised with <code>dlopen</code> and deinitialised with <code>dlclose</code>. Fortunately, these are a lot easier to handle cleanly in our use case of reloading the module.</p>
 
 <p>Put simply, avoid initialising static variables using function calls, e.g. <code>static Foo foo = some_foo_init();</code>. Similarly as with the static block and function scoped variables, these assignments mean that <code>some_foo_init</code> will be executed every time we reload the module. The same thing applies if the static variable is used to track state that needs to persist across reloads, as the reload will reset the state.</p>
 
