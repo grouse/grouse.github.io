@@ -506,6 +506,10 @@ div.post-navigation .next {
 	float: right;
 }
 
+div.tags {
+	float: left;
+}
+
 div.date {
 	float: right;
 }
