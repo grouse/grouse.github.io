@@ -412,6 +412,43 @@ header {
 	line-height: 1.5em;
 }
 
+.content img {
+    max-width: 100%;
+    display: block;
+    margin: 1em auto;
+}
+
+img.expandable {
+    cursor: pointer;
+}
+
+.img-expand-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.img-expand-overlay img {
+    max-width: 90vw;
+    max-height: 90vh;
+    box-shadow: 0 0 20px #000;
+}
+
+.img-expand-overlay {
+    cursor: pointer;
+}
+
+.content video {
+    max-width: 100%;
+    display: block;
+    margin: 0 auto;
+}
+
 /* resume styling */
 .resume .about {
 	margin-top: 20px;

@@ -30,3 +30,33 @@
 		toggleClass(layout, active);
 	};
 }(this, this.document));
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('img.expandable').forEach(function(img) {
+        img.addEventListener('click', function() {
+            const overlay = document.createElement('div');
+            overlay.className = 'img-expand-overlay';
+            const bigImg = document.createElement('img');
+            bigImg.src = img.src;
+            overlay.appendChild(bigImg);
+
+            // Function to close overlay
+            function closeOverlay() {
+                overlay.remove();
+                document.removeEventListener('keydown', escListener);
+            }
+
+            // Escape key listener
+            function escListener(e) {
+                if (e.key === 'Escape') {
+                    closeOverlay();
+                }
+            }
+
+            overlay.addEventListener('click', closeOverlay);
+            document.addEventListener('keydown', escListener);
+
+            document.body.appendChild(overlay);
+        });
+    });
+});

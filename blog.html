@@ -42,6 +42,102 @@
 	<div id="main">
 
 <div class="header">
+	<h1>echo</h1>
+</div>
+
+<div class="content">
+	<div class="post-meta clearfix">
+		<div class="tags"><i class="fa fa-tag"></i><a href="/posts/tag/jam.html">jam</a>, <a href="/posts/tag/godot.html">godot</a>, <a href="/posts/tag/gamedev.html">gamedev</a></div>
+		<div class="date">
+			<i class="fa fa-calendar fa-f2"></i>
+			<time>2025-11-24</time>
+		</div>
+	</div>
+	
+	
+
+<p>During the 2025 GMTK game jam I made a small prototype in Godot to learn more about the engine. The theme of the jam was "loop", and I got stuck thinking about time loops and how you could use recorded player state to solve puzzles with your past, like a temporal single player co-op game.</p>
+
+
+
+<p>The game is playable in the browser at <a href="https://grousejst.itch.io/echo">https://grousejst.itch.io/echo</a>
+
+<p>The jam took place between 30th of July and 3rd of August 2025, during which I wrote Echo over the course of about 2 days, using mostly primitives and a handful of assets from Kenney's Asset packs, <a href="https://kenney.nl/assets">https://kenney.nl/assets</a></p>
+
+<h1>Levels</h1>
+<p>During the jam, I had time to throw together 6 small levels, with ideas for many more filling my notebooks. Below I outline the first 3 levels that introduce the rules of the looping, ending on a hopefully satisfying 'a-ha' a the player realises how the ghost interacts with the world.</p>
+
+<h2>The past will set you free</h2>
+<img class="expandable" src="/assets/echo/level1_0.png"/>
+<p>The first level has to introduce the player to the concept of looping and solving the puzzle using the ghost of the previous iteration. As such, the level is a simple locked door that is opened with a pressure switch. Step off the switch, the door closes again. The only solution is to to stand still on the switch for a while, loop the iteration, and wait for the ghost to stand on the switch and let you through.</p>
+<img class="expandable" src="/assets/echo/level1_1_switch.png"/>
+<img class="expandable" src="/assets/echo/level1_2_closed.png"/>
+<img class="expandable" src="/assets/echo/level1_3_ghost.png"/>
+
+<h2>Planning ahead</h2>
+<p>The second level is a small step forward in the same vein as level 1, the only difference is introducing a measure of timing and having to plan ahead by standing still on the first switch long enough to let future you walk through, and then moving over to the 2nd switch.</p>
+<img class="expandable" src="/assets/echo/level2_0.png"/>
+<img class="expandable" src="/assets/echo/level2_1_first.png"/>
+<img class="expandable" src="/assets/echo/level2_2_second.png"/>
+
+<h2>Ghost continuum</h2>
+<img class="expandable" src="/assets/echo/level3_0.png"/>
+<p>In level 3, I am extending the concepts from the previous levels to introduce the idea of ghosts breaking continuity, from the perspective of the present. In short, that ghost does not interact with physics, and can walk through walls or doors, if they were not there during the ghost's version of the world.</p>
+
+<p>In practice, this is merely a side effect of recording the state of the player and position and replaying it. If I were to instead record input and rely on deterministic simulations, achieving the same result would require a more complex solution.</p>
+
+<video controls><source src="/assets/echo/level3.webm"/></video>
+
+<h1>Record & replay state</h1>
+
+<p>Recording the player state simply means pushing the player position and rotation onto an ever-growing buffer, rate limited to 30Hz. For the jam, I didn't have time to think too much about how long I wanted to the recorded state window to be, and what that would mean for the design of the game.</p>
+
+<p>I chose 30Hz recording frequency primarily to have a fixed framerate in the recording that would be consistent, but as a high enough framerate I didn't need practically consider things like interpolating through corners, as such errors would be too small to make a difference for the purpose of the jam.</p>
+
+<p>Memory is not really a concern when recording so little state; the naive approach shown below and used in the jam results in about 720 bytes per second for storing the state, or 43.2 KiB per minute. With modern hardware and such a small game, recording just a single entity's state, you'd be able to record for literally days (59 MiB per day) before this started making a dent in your RAM usage.</p>
+<code class="block">func record_state(position : Vector3, rotation : Vector3) -&gt; void:
+	if record_start_time &lt; 0: return
+
+	if recorded_state.size() &gt; 0 && (time-recorded_state[recorded_state.size()-1].end_time_msec) &lt; record_rate_ms:
+		return
+
+	if recorded_state.size() &gt; 0: recorded_state.back().end_time_msec = time
+	var state : RecordedState = RecordedState.new()
+	state.position = position 
+	state.rotation = rotation 
+	recorded_state.append(state)
+</code>
+
+<p>Replaying the previously recorded state linearly interpolates between the most current state and the next to achieve smooth playback, no matter the frequency of the recorded state.</p>
+
+<code class="block">func replay_state():
+	var delta_msec = Time.get_ticks_usec() - replay_start_time 
+	while replay_i &lt; replay_state.size() && delta_msec &gt;= replay_state[replay_i].end_time_msec:
+		replay_i += 1
+
+	if replay_i &lt; replay_state.size():
+		var pos = replay_state[replay_i].position
+		var rot = replay_state[replay_i].rotation
+
+		var pos_n = pos
+		var rot_n = rot
+
+		var alpha = 0
+		if replay_i+1 &lt; replay_state.size():
+			pos_n = replay_state[replay_i + 1].position
+			rot_n = replay_state[replay_i + 1].rotation
+			var quotient = replay_state[replay_i + 1].end_time_msec - replay_state[replay_i].end_time_msec
+			if quotient &gt; 0: alpha = (delta_msec - replay_state[replay_i].end_time_msec) / float(quotient)
+
+		pos = pos.lerp(pos_n, alpha)
+		rot = rot.slerp(rot_n, alpha)
+
+		position = pos
+		rotation = rot
+</code>
+<p>Another approach would have been to record and replay player inputs, however this requires a level of deterministic simulation that I was not able to guarantee with limited knowledge of Godot internals and limited time. I also wanted to be able to explore intentionally breaking continuity in the time loop as a puzzle, e.g. the recorded "ghost" player walking through walls or not falling through the air based on the interaction with its version of the physics scene instead of the current state at the time of replay.</p>
+
+</div><div class="header">
 	<h1>the umbrella dilemma</h1>
 </div>
 
@@ -148,7 +244,7 @@
 
 
 
-<img src="/img/fsg.png" style="max-width: 80%; display: block; margin: 0 auto;"/>
+<img src="/img/fsg.png" />
 
 <p>I don't put as much content on this site as I think I should. Most of the time I just update my resume whenever that needs updating. Despite that, every single time I've updated this site I've ran into issues with Hugo, which is the static site generator I use. Or did use, I should say. See, I update my site rarely enough that I generally forget which version of hugo I was using. So every time I download the latest, naively thinking that it'll be fine. Every time I have to spend a day fixing it, dealing with various changes in the framework.</p>
 
@@ -165,6 +261,7 @@
 <p>I enjoy writing things from scratch, mostly or entirely without libraries. Definitely without frameworks. It allows me to learn things at a deep level which is usable in the future to a much greater degree than some trivia knowledge about how to massage some framework into doing what you need, and it gives me opportunity to practice the fundamentals - every time I write a lexer it gets a little better and I get a little faster at writing it. I think we all just need to invent the wheel a bunch of times before we actually arrive at a wheel that works well. It also just doesn't take as long as many seem to think - if you limit yourself to solving the problems that you actually need to solve. Programmers trying to solve the imaginary problem of tomorrow and making their solutions more general happens far too often, which inherently leads to a solution more complex than required. When applied to a personal tool, you might be surprised how simple things end up.</p>
 
 <p>By the way, did you know that the earliest archeological find of a wheel is a potter's wheel? I should say we're lucky our ancestors re-invented that wheel a few times to get to wheels for flour mills, trolleys, carts, and carriages before they got to the smooth, rubberised wheels of the modern car.</p>
+
 </div><div class="header">
 	<h1>defer</h1>
 </div>
