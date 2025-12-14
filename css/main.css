@@ -412,11 +412,24 @@ header {
 	line-height: 1.5em;
 }
 
+.left { 
+    float: left;
+    display: block;
+    margin: 0 auto !important;
+}
+
+.right {
+    float: right;
+    display: block;
+    margin: 0 auto !important;
+}
+
 .content img {
     max-width: 100%;
     display: block;
     margin: 1em auto;
 }
+
 
 img.expandable {
     cursor: pointer;
