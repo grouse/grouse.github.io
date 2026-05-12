@@ -24,7 +24,6 @@
     <ul class="side-menu-list">
         <li class="side-menu-item"><a class="side-menu-link" href="/"><i class="fa fa-home fa-fw"></i>Home</a></li>
         <li class="side-menu-item"><a class="side-menu-link" href="/resume.html"><i class="fa fa-graduation-cap fa-fw"></i>Resume</a></li>
-        <li class="side-menu-item"><a class="side-menu-link" href="/blog.html"><i class="fa fa-file-text fa-fw"></i>Blog</a></li>
     </ul>
 
     <ul class="side-menu-list social">
@@ -55,23 +54,23 @@
 
 <p>The jam took place between 30th of July and 3rd of August 2025, during which I wrote Echo over the course of about 2 days, using mostly primitives and a handful of assets from Kenney's Asset packs, <a href="https://kenney.nl/assets">https://kenney.nl/assets</a>. It's a really small prototype, but I had fun making it, and it was honest work!</p>
 
-<h1>Levels</h1>
+<h1 id="levels">Levels</h1>
 <p>The prototype contains 6 small levels, with ideas for many more filling my notebooks. Below I outline the first 3 levels that introduce the rules of the looping, culminating in a hopefully satisfying realisation as the player realises how the ghost interacts with the world.</p>
 
-<h2>The past will set you free</h2>
+<h2 id="the_past_will_set_you_free">The past will set you free</h2>
 <img class="expandable" src="/assets/echo/level1_0.png"/>
 <p>The first level introduces the player to the concept of looping and solving the puzzle using the ghost of the previous iteration. As such, the level is a simple locked door that is opened with a pressure switch. Step off the switch, the door closes again. The only solution is to to stand still on the switch for a while, loop the iteration, and wait for the ghost to stand on the switch and let you through.</p>
 <img class="expandable" src="/assets/echo/level1_1_switch.png"/>
 <img class="expandable" src="/assets/echo/level1_2_closed.png"/>
 <img class="expandable" src="/assets/echo/level1_3_ghost.png"/>
 
-<h2>Planning ahead</h2>
+<h2 id="planning_ahead">Planning ahead</h2>
 <p>The second level is a small step forward in the same vein as level 1, the only difference is introducing a measure of timing and having to plan ahead by standing still on the first switch long enough to let future you walk through, and then moving over to the 2nd switch.</p>
 <img class="expandable" src="/assets/echo/level2_0.png"/>
 <img class="expandable" src="/assets/echo/level2_1_first.png"/>
 <img class="expandable" src="/assets/echo/level2_2_second.png"/>
 
-<h2>Ghost continuum</h2>
+<h2 id="ghost_continuum">Ghost continuum</h2>
 <img class="expandable" src="/assets/echo/level3_0.png"/>
 <p>In level 3, I am extending the concepts from the previous levels to introduce the idea of ghosts breaking continuity, from the perspective of the present. In short, that ghost does not interact with physics, and can walk through walls or doors, if they were not there during the ghost's version of the world.</p>
 
@@ -79,7 +78,7 @@
 
 <video controls><source src="/assets/echo/level3.webm"/></video>
 
-<h1>Record & replay state</h1>
+<h1 id="record_&_replay_state">Record & replay state</h1>
 
 <p>Recording the player state simply means pushing the player position and rotation onto an ever-growing buffer, rate limited to 30Hz. For the jam, I didn't have time to think too much about how long I wanted to the recorded state window to be, and what that would mean for the design of the game.</p>
 
@@ -127,7 +126,7 @@
 		rotation = rot
 </code>
 
-<h1>The End</h1>
+<h1 id="the_end">The End</h1>
 <p>Echo was the first somewhat real thing I'd done in Godot, and it was the first game jam I'd really attempted, although in the end I missed the submission deadline by a few minutes and so it was never officially submitted. Jokes on them, because I got everything I wanted out of the jam and then some.</p>
 
 <p>I had a lot of fun making it, and it was fun learning Godot. The resulting prototype is very small and barely scratches the surface of being a game, but it is, technically, a game. I have enough left-over ideas and areas I want to explore that I'm pretty sure I'll return to it at some point and see where the design space takes me. Who knows, maybe one day it'll become a real game.</p>

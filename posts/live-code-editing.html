@@ -24,7 +24,6 @@
     <ul class="side-menu-list">
         <li class="side-menu-item"><a class="side-menu-link" href="/"><i class="fa fa-home fa-fw"></i>Home</a></li>
         <li class="side-menu-item"><a class="side-menu-link" href="/resume.html"><i class="fa fa-graduation-cap fa-fw"></i>Resume</a></li>
-        <li class="side-menu-item"><a class="side-menu-link" href="/blog.html"><i class="fa fa-file-text fa-fw"></i>Blog</a></li>
     </ul>
 
     <ul class="side-menu-list social">
@@ -93,11 +92,11 @@ void* load_foo()
 
 <p>So, first of, there are a couple of different things that needs to be done to get the code base ready to be loaded at runtime. I've already implemented live code editing in one of my main hobby projects, Leary (https://github.com/grouse/leary), so I'l  be using that as a reference to describe what needs to be done and how to achieve it.</p>
 
-<h1>Figure out what to reload</h1>
+<h1 id="figure_out_what_to_reload">Figure out what to reload</h1>
 
 <p>The first thing that needs to be done is deciding which parts of the code base should be loaded at runtime and start making the changes necessary to make it possible to compile these parts into a <code>.dll</code> or <code>.so</code>. For Leary I wanted as much as possible to fall in this category. That means initialisation, input handling, simulation, and rendering.</p>
 
-<h1>Make a few small, concise entry points to the reloaded code</h1>
+<h1 id="make_a_few_small,_concise_entry_points_to_the_reloaded_code">Make a few small, concise entry points to the reloaded code</h1>
 
 <p>We could simply reload every single function in the code, but that is quickly going to turn into a nightmare to maintain. Instead, I suggest you provide a very simple interface to the code that is reloaded with just a few different functions and move all code behind those, making a concise and easy to maintain interface between the dynamically loaded code and the main entry point of the program.</p>
 
@@ -136,7 +135,7 @@ void* load_code()
 }
 </code>
 
-<h1>Coalesce state</h1>
+<h1 id="coalesce_state">Coalesce state</h1>
 
 <p>If all you do is run the above code in your <code>main</code> entry point once, it should 'just work'. But that's not why we're here. We want to be able to continuously reload the code as it changes.</p>
 
@@ -144,7 +143,7 @@ void* load_code()
 
 <p>If you do use any static variables you need to understand how static initialisation works, in particular in regards to dynamically linked libraries.</p>
  
-<h2>Static local variables</h2>
+<h2 id="static_local_variables">Static local variables</h2>
 
 <p>Static variables that are declared locally in function or block scope is initialised at first execution of that scope. The deinitialisation of the static variables occurs at program or module exit. Because we'll be reloading the code continuously we'l  be calling <code>dlclose</code> followed by <code>dlopen</code> every time we reload. Static deinitialisation of all block or function scoped static variables in the dynamic library will occur at <code>dlclose</code>.</p>
 
@@ -152,15 +151,15 @@ void* load_code()
 
 <p>There isn't really any simple solution that fits all in this case. You're just gonna have to go through each static variable and figure out if multiple initialisations and deinitialisatons of the variable would result in bad behaviour. As a personal preference, I tend to avoid the type of static variables that would cause these types of problems for a number of different reasons, live code editing being just one minor one of them. These reasons may become the subject of a future post.</p>
 
-<h2>Static global variables</h2>
+<h2 id="static_global_variables">Static global variables</h2>
 
-<p>Static global variables will be initialised with <code>dlopen</code> and deinitialised with <code>dlclose</code>. Fortunately, these are a lot easier to handle cleanly in our use case of reloading the module.</p>
+<p>Static global variables will be initialised with<code>dlopen</code> and deinitialised with <code>dlclose</code>. Fortunately, these are a lot easier to handle cleanly in our use case of reloading the module.</p>
 
 <p>Put simply, avoid initialising static variables using function calls, e.g. <code>static Foo foo = some_foo_init();</code>. Similarly as with the static block and function scoped variables, these assignments mean that <code>some_foo_init</code> will be executed every time we reload the module. The same thing applies if the static variable is used to track state that needs to persist across reloads, as the reload will reset the state.</p>
 
 <p>Instead, put all these initialisations behind an <code>init</code> or <code>reload</code> function. In the case of Leary, that's exactly what <code>game_reload</code> is used for. The state object from <code>game_init</code> is used to store and restore the values of the variables.</p>
 
-<h1>Putting it all together</h1>
+<h1 id="putting_it_all_together">Putting it all together</h1>
 
 <p>At last. We've coalesced all the state required into a single object that we can pass into the drastically reduced entry point interface that we've defined, and we've (hopefully) cleaned up all static variables or made sure they all behave well when being initialised multiple times. It's time to write the main loop that pulls it all together and reloads the code when appropriate.</p>
 
@@ -222,7 +221,7 @@ void main(int, char **)
 
 <p>Naturally, reloading the game code every frame is a horrendously bad idea. It'll tank the performance and you're pretty much asking for trouble. There are a number of ways to get around that problem: either reload the code after some predetermined, arbitrary amount of time, or use a way to determine whether the <code>game.so</code> file has changed and only reload the code when that happens. To accomplish the latter you can simply query the last modified date of the file whenever you want to reload it, or you can look into the various platform specific ways that exist to be notified via callbacks or events when a file changes. Right now in Leary I simply query the last modified time of the dynamic library every second and reload it if it has changed.</p>
 
-<h1>Final words</h1>
+<h1 id="final_words">Final words</h1>
 
 <p>There you have it. Natively compiled C/C++ code reloaded dynamically at runtime, allowing you to very rapidly change a piece of code, compile it, and have the changes immediately take effect in the running program. It's magic.</p>
 

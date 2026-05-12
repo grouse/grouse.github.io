@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+	<title>Farmer's Blight - Jesper Stefansson</title>
+    <link rel="stylesheet" href="/css/blackburn.css">
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/fork-awesome.min.css">
+
+</head>
+<body>
+
+<div id="layout">
+    <button type="button" id="menu_btn" class="hidden-print">
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+</button>
+
+<div id="menu" class="side-menu hidden-print">
+    <a class="side-menu-heading brand" href="/">Jesper Stefansson</a>
+    <ul class="side-menu-list">
+        <li class="side-menu-item"><a class="side-menu-link" href="/"><i class="fa fa-home fa-fw"></i>Home</a></li>
+        <li class="side-menu-item"><a class="side-menu-link" href="/resume.html"><i class="fa fa-graduation-cap fa-fw"></i>Resume</a></li>
+    </ul>
+
+    <ul class="side-menu-list social">
+        <li class="side-menu-item"><a class="side-menu-link" href="https://mastodon.gamedev.place/@jesper" target="_blank"><i class="fa fa-mastodon-square fa-fw"></i>Mastodon</a></li>
+        <li class="side-menu-item"><a class="side-menu-link" href="https://linkedin.com/in/jesperstefansson" target="_blank"><i class="fa fa-linkedin-square fa-fw"></i>LinkedIn</a></li>
+        <li class="side-menu-item"><a class="side-menu-link" href="https://github.com/grouse" target="_blank"><i class="fa fa-github-square fa-fw"></i>GitHub</a></li>
+    </ul>
+</div>
+
+	<div id="main">
+		<div class="header"><h1>Farmer's Blight</h1></div>
+		<div class="content">
+			<div class="post-meta clearfix">
+				<div class="tags"><i class="fa fa-tag"></i><a href="/posts/tag/jam.html">jam</a>, <a href="/posts/tag/godot.html">godot</a>, <a href="/posts/tag/gamedev.html">gamedev</a></div>
+				<div class="date">
+					<i class="fa fa-calendar fa-fw"></i>
+					<time>2026-05-12</time>
+				</div>
+			</div>
+
+			
+
+<p>For the 2025 Scream Jam hosted on itch.io I was able to recruit some friends from work to make a small tower defense game in Godot with undead monsters hell-bent on destroying an urban market, defended by local farmers with improvised turrets made from the tools of their trade.</p>
+
+<p>My friends made some great art and music for the game while I took care of the programming, design, and the 50 other random things that needed to happen to finish up and submit the game for the jam.</p>
+
+<img class="expandable" src="/assets/farmers_blight/base.png"/>
+
+<p>The game is available to play in the browser or downloaded for Windows and Linux at <a href="https://grousejst.itch.io/blight">https://grousejst.itch.io/blight</a>.</p>
+
+
+
+<h2 id="the_game">The Game</h2>
+<p>Taking cues from the Warcraft III-based tower defense games I grew up playing, you place towers and Barricades in the level to defeat the spawning enemies on their way to the Markets while buying time by extending their path in a maze-like fashion.</p>
+
+<p>The goal is to survive as long as possible while collecting spuds, which also happens to be your currency. Spend spuds to build turrets and survive longer, or don't, and see how much you can hoard before dying.</p>
+
+<h2 id="enemies">Enemies</h2>
+<p>Upon spawning, enemies attempt to pick a Market structure to navigate to and destroy. If all paths are blocked, they'll start attacking the nearest structures to forcefully make a path there. As a result, your better long-term strategy is placing structures in a maze-like pattern; however, stacking a bunch of sturdy Barricades in front of some turrets is also viable (for a while).</p>
+
+<p>The navigation mesh used for the enemies updates dynamically whenever structures are added or removed from the level, allowing the navigation agents to change paths to the shorter ones as the structures are placed or destroyed.</p>
+
+<h3 id="walker">Walker</h3>
+<p>Walkers' main function is, well, walking. They find the shortest path to the Market and stick to it without deviation, unless the path is blocked by placed structures. They represent the baseline enemy with the lowest health and damage.</p>
+<img class="expandable" src="/assets/farmers_blight/walker.png"/>
+
+<h3 id="rager">Rager</h3>
+<p>The Ragers have a small probability to randomly rage out and attack nearby structures as they make their way towards the Market. They're designed to introduce chaos and require the player to keep a close eye on their structures and ensure that any gaps that open up are closed up with new buildings.</p>
+
+<h3 id="spawner">Spawner</h3>
+<div class="float-section">
+<img class="expandable float-right" src="/assets/farmers_blight/spawner.png"/>
+
+<p>Initially I wanted to use authored waves with early waves designed to introduce the player to the different enemy types, before ramping up to high intensity waves, followed by gentler waves to allow the player to catch their breath and rebuild their maze.</p>
+
+<p>In the end, due to the time constraints of the jam we didn't have enough time to design and playtest a bunch of bespoke waves or implement enough enemy types, or structures to deal with them. Instead, I threw together a spawner with knobs and dials to ramp up the spawned enemies'  health, damage, and movement speed over time, controlled using curves to quickly and easily tune the ramp-up rates.</p>
+</div>
+
+<h2 id="structures">Structures</h2>
+<h3 id="barricades">Barricades</h3>
+<p>I wanted the player to have a cheap, long structure that did no damage but could be used to quickly and cheaply increase the length of the path to the Markets, creating maze-like paths around the more expensive turrets. The high health of the structure also meant it could withstand a beating against any enemy that might rage out and start attacking structures at random, or if their path were blocked off.</p>
+
+<img class="expandable" src="/assets/farmers_blight/barricade.png"/>
+
+<h3 id="spudder">Spudder</h3>
+<p>The Spudder shoots potato projectiles, aiming directly at the targeted enemy. It's the only damaging turret in the game, making it essential for survival. The other structures mostly act as support pieces that make the Spudders more effective.</p>
+
+<img class="expandable" src="/assets/farmers_blight/spudder.png"/>
+
+<h3 id="tosser">Tosser</h3>
+<p>The Tosser is a ballistic catapult-like turret that throws jars of honey at nearby enemies, leaving behind pools of sticky honey that slow the enemies down. It causes no damage on its own, but represents the typical slow-tower of a tower defense game, allowing the turrets more time to shoot at the enemies before they go out of range. This tower increases in importance the longer you survive, as the enemies' speed increases as difficulty ramps up.</p>
+<img class="expandable" src="/assets/farmers_blight/tosser.png"/>
+
+<h3 id="markets">Markets</h3>
+<p>Markets are the most expensive structure to place, but provide resources automatically over time. They also act as your life counter; if you run out of Markets, the game is over. It's also the structure that all enemies try their hardest to reach to destroy, so placing Markets can be used to split up the enemies by spreading them out across the level.</p>
+
+<img class="expandable" src="/assets/farmers_blight/market.png"/>
+
+<h2 id="how_many_spuds_can_you_hoard?">How many spuds can you hoard?</h2>
+<p>We ended up shipping a small tower defense game with a coherent game loop, music, sound and particle effects, and it plays in a browser, with native builds available for Windows and Linux. The roughest part is the tuning and limited structure and enemy progression, but I came away with several pages of notes I may one day return to if the tower defense bug bites again.</p>
+
+<p>The game is playable on my itch page: <a href="https://grousejst.itch.io/blight">https://grousejst.itch.io/blight</a>.</p>
+
+		</div>
+	</div>
+</div>
+
+<script src="/js/ui.js"></script>
+</body>
+</html>
